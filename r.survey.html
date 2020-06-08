@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>r.survey.py - GRASS GIS manual</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="grassdocs.css" type="text/css">
+</head>
+<body bgcolor="white">
+<div id="container">
+
+<a href="index.html"><img src="grass_logo.png" alt="GRASS logo"></a>
+<hr class="header">
+
+<h2>NAME</h2>
+<em><b>r.survey.py</b></em>  - Returns maps of visibility indexes (3d distance, view angle and solid angle) from multiple survey points
+<h2>KEYWORDS</h2>
+<a href="visibility.html">visibility</a>, <a href="topic_survey.html">survey</a>
+<h2>SYNOPSIS</h2>
+<div id="name"><b>r.survey.py</b><br></div>
+<b>r.survey.py --help</b><br>
+<div id="synopsis"><b>r.survey.py</b> [-<b>bcd</b>] <b>points</b>=<em>name</em> <b>dem</b>=<em>name</em> <b>output</b>=<em>name</em> <b>maxdist</b>=<em>float</em>  [<b>treesmap</b>=<em>name</em>]   [<b>buildingsmap</b>=<em>name</em>]  <b>obs_heigh</b>=<em>string</em>  [<b>treesheigh</b>=<em>string</em>]   [<b>buildingsheigh</b>=<em>string</em>]   [<b>obsabselev</b>=<em>string</em>]   [<b>layer</b>=<em>string</em>]  <b>viewangle_threshold</b>=<em>string</em>  [<b>object_radius</b>=<em>string</em>]   [<b>nprocs</b>=<em>integer</em>]   [<b>memory</b>=<em>integer</em>]   [--<b>overwrite</b>]  [--<b>help</b>]  [--<b>verbose</b>]  [--<b>quiet</b>]  [--<b>ui</b>] 
+</div>
+
+<div id="flags">
+<h3>Flags:</h3>
+<dl>
+<dt><b>-b</b></dt>
+<dd>Create a simple visible-not visible raster map</dd>
+
+<dt><b>-c</b></dt>
+<dd>Consider the curvature of the earth (current ellipsoid)</dd>
+
+<dt><b>-d</b></dt>
+<dd>allow only downward view direction (can be used for drone view)</dd>
+
+<dt><b>--overwrite</b></dt>
+<dd>Allow output files to overwrite existing files</dd>
+<dt><b>--help</b></dt>
+<dd>Print usage summary</dd>
+<dt><b>--verbose</b></dt>
+<dd>Verbose module output</dd>
+<dt><b>--quiet</b></dt>
+<dd>Quiet module output</dd>
+<dt><b>--ui</b></dt>
+<dd>Force launching GUI dialog</dd>
+</dl>
+</div>
+
+<div id="parameters">
+<h3>Parameters:</h3>
+<dl>
+<dt><b>points</b>=<em>name</em>&nbsp;<b>[required]</b></dt>
+<dd>Name of input vector map</dd>
+<dd>Name of the input points map  (representing the survey location)</dd>
+
+<dt><b>dem</b>=<em>name</em>&nbsp;<b>[required]</b></dt>
+<dd>Name of the input DEM layer</dd>
+
+<dt><b>output</b>=<em>name</em>&nbsp;<b>[required]</b></dt>
+<dd>Prefix for the output visibility layers</dd>
+
+<dt><b>maxdist</b>=<em>float</em>&nbsp;<b>[required]</b></dt>
+<dd>max distance from the input points</dd>
+<dd>Default: <em>1000</em></dd>
+
+<dt><b>treesmap</b>=<em>name</em></dt>
+<dd>Name of input vector map</dd>
+<dd>Name of the vector layer representing the forested areas</dd>
+
+<dt><b>buildingsmap</b>=<em>name</em></dt>
+<dd>Name of input vector map</dd>
+<dd>Name of the vector layer representing the buildings</dd>
+
+<dt><b>obs_heigh</b>=<em>string</em>&nbsp;<b>[required]</b></dt>
+<dd>observer_elevation</dd>
+<dd>Default: <em>1.75</em></dd>
+
+<dt><b>treesheigh</b>=<em>string</em></dt>
+<dd>field of the attribute table containing information about threes heigh</dd>
+
+<dt><b>buildingsheigh</b>=<em>string</em></dt>
+<dd>field of the attribute table containing information about buildings heigh</dd>
+
+<dt><b>obsabselev</b>=<em>string</em></dt>
+<dd>field of the attribute table containing information about observer absolute elevation above the same datum used by the DEM (e.g. geodetic elevation)</dd>
+
+<dt><b>layer</b>=<em>string</em></dt>
+<dd>layer of the attribute table of the point map (can be usefull for obsabselev option)</dd>
+<dd>Default: <em>1</em></dd>
+
+<dt><b>viewangle_threshold</b>=<em>string</em>&nbsp;<b>[required]</b></dt>
+<dd>cut the output layers at a given threshold value (between 90 and 180 degrees)</dd>
+<dd>Default: <em>90.01</em></dd>
+
+<dt><b>object_radius</b>=<em>string</em></dt>
+<dd>radius of the surveyed object in unit of map (default is half the DEM resolution)</dd>
+
+<dt><b>nprocs</b>=<em>integer</em></dt>
+<dd>Number of processes</dd>
+<dd>Default: <em>1</em></dd>
+
+<dt><b>memory</b>=<em>integer</em></dt>
+<dd>Amount of memory to use in MB (for r.viewshed analysis)</dd>
+<dd>Default: <em>500</em></dd>
+
+</dl>
+</div>
+</body>
+</html>
