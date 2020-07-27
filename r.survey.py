@@ -286,12 +286,12 @@ def compute(pnt, dem, obs_heigh, maxdist, hcurv, downward, oradius, i, nprocs, o
         #Executing viewshed analysis
         if obsabselev:
             relative_height = z - obselev
-            message1 = "* Considered elevation of dem/dsm is: %s *"
-            message2 = "* Relative height of observer above the dem/dsm is: %s *"
-            message3 = "* Absolute elevation of observer used in r.viewshed is: %s *"
-            gscript.message(message1 % (str(obselev)) )
-            gscript.message(message2 % (str(relative_height)))
-            gscript.message(message3 % (str(z)))
+            #message1 = "* Considered elevation of dem/dsm is: %s *"
+            #message2 = "* Relative height of observer above the dem/dsm is: %s *"
+            #message3 = "* Absolute elevation of observer used in r.viewshed is: %s *"
+            #gscript.message(message1 % (str(obselev)) )
+            #gscript.message(message2 % (str(relative_height)))
+            #gscript.message(message3 % (str(z)))
             if hcurv:
                 Module("r.viewshed", input=dem, output="zzview"+i, coordinates=coords.split(), memory=memory, observer_elevation=relative_height, max_distance=maxdist,  flags="c", overwrite=True, quiet=True)
             else:
@@ -300,12 +300,12 @@ def compute(pnt, dem, obs_heigh, maxdist, hcurv, downward, oradius, i, nprocs, o
                 #Since UAV nor Satellite are not expected to see above their level (they are only looking to the ground) vertical angles above 90 are set to null. 
                 Module("r.mapcalc", expression="zzview{I} = if(zzview{I}>90 && zzview{I}<180,null(),zzview{I})".format(I=i), overwrite=True, quiet=True)
         else:
-            message1 = "* Considered elevation of dem/dsm is: %s *"
-            message2 = "* Relative height of observer above the dem/dsm is: %s *"
-            message3 = "* Absolute elevation of observer used in r.viewshed is: %s *"
-            gscript.message(message1 % (str(obselev)) )
-            gscript.message(message2 % (str(obs_heigh)))
-            gscript.message(message3 % (str(obselev + obs_heigh)))            
+            #message1 = "* Considered elevation of dem/dsm is: %s *"
+            #message2 = "* Relative height of observer above the dem/dsm is: %s *"
+            #message3 = "* Absolute elevation of observer used in r.viewshed is: %s *"
+            #gscript.message(message1 % (str(obselev)) )
+            #gscript.message(message2 % (str(obs_heigh)))
+            #gscript.message(message3 % (str(obselev + obs_heigh)))            
             if hcurv:
                 Module("r.viewshed", input=dem, output="zzview"+i, coordinates=coords.split(), memory=memory, observer_elevation=obs_heigh, max_distance=maxdist, flags="c", overwrite=True, quiet=True)
             else:
@@ -344,26 +344,29 @@ def compute(pnt, dem, obs_heigh, maxdist, hcurv, downward, oradius, i, nprocs, o
         #filtering 3d distance based on angle{I} map
         Module("r.mapcalc", expression="{D} = if(isnull(zzangle{I}),null(),{D})".format(D="zzdistance"+str(i),I=i), overwrite=True, quiet=True)
         #calculating H1 and H2 that are the distances from the observer to the more distant and less distant points of the inclinded circle representing the pixel
-        Module("r.mapcalc", expression="zzH1{I} = pow(pow({r},2)+pow({d},2)-(2*{r}*{d}*cos(270-zzangle{I})),0.5)".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
-        Module("r.mapcalc", expression="zzH2{I} = pow(pow({r},2)+pow({d},2)-(2*{r}*{d}*cos(zzangle{I}-90)),0.5)".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="zzH1_{I} = pow(pow({r},2)+pow({d},2)-(2*{r}*{d}*cos(270-zzangle{I})),0.5)".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="zzH2_{I} = pow(pow({r},2)+pow({d},2)-(2*{r}*{d}*cos(zzangle{I}-90)),0.5)".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
         #calculating B1 and B2 that are the angles between the line passing through the observer and the center of the pixel and the distant and less distant points of the inclinded circle representing the pixel
-        Module("r.mapcalc", expression="zzB1{I} = acos( (pow({r},2)-pow(zzH1{I},2)-pow({d},2)) / (-2*zzH1{I}*{d}) ) ".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
-        Module("r.mapcalc", expression="zzB2{I} = acos( (pow({r},2)-pow(zzH2{I},2)-pow({d},2)) / (-2*zzH2{I}*{d}) ) ".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="zzB1_{I} = acos( (pow({r},2)-pow(zzH1_{I},2)-pow({d},2)) / (-2*zzH1_{I}*{d}) ) ".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="zzB2_{I} = acos( (pow({r},2)-pow(zzH2_{I},2)-pow({d},2)) / (-2*zzH2_{I}*{d}) ) ".format(r=circle_radius,d="zzdistance"+str(i),I=i), overwrite=True, quiet=True) 
         #calculating solid angle considering that the area of an asimetric ellipse is equal to the one of an ellipse having the minor axis equal to the sum of the tqo unequal half minor axes 
-        Module("r.mapcalc", expression="zzsangle{I} = ({pi}*{r}*( {d}*tan(zzB1{I}) + {d}*tan(zzB2{I}) )/2 )  / (pow({r},2)+pow({d},2)) ".format(r=circle_radius,d="zzdistance"+str(i),I=i,pi=pi), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="zzsangle{I} = ({pi}*{r}*( {d}*tan(zzB1_{I}) + {d}*tan(zzB2_{I}) )/2 )  / (pow({r},2)+pow({d},2)) ".format(r=circle_radius,d="zzdistance"+str(i),I=i,pi=pi), overwrite=True, quiet=True) 
         #approximations for calculating solid angle can create too much larger values under or very close the position of the oserver. in such a case we assume that the solid angle is half of the visible sphere (2*pi)
         #The same occur when it is used an object_radius that is larger than thepixel size. In some cases ths can produce negative values of zzB2 whit the effect of creating negative values 
-        Module("r.mapcalc", expression="zzsangle{I} = if(zzsangle{I}>2*{pi} || zzB2{I}>=90,2*{pi},zzsangle{I})".format(I=i, pi=pi), overwrite=True, quiet=True)
+        Module("r.mapcalc", expression="zzsangle{I} = if(zzsangle{I}>2*{pi} || zzB2_{I}>=90,2*{pi},zzsangle{I})".format(I=i, pi=pi), overwrite=True, quiet=True)
         #removing temporary region    
         gscript.del_temp_region()
     except:
         #cleaning termporary layers
-        cleanup()
-        message = " ******** Something went wrong: please try to reduce the number of CPU (parameter 'procs') ******* "
-        gscript.message(message)
-        sys.exit()
+        #cleanup()
+        #message = " ******** Something went wrong: please try to reduce the number of CPU (parameter 'procs') ******* "
+        #gscript.message(message)
+        #sys.exit()
+        f = open("error_cat_"+i+".txt", "x")
+        f.write("error in category: "+i)
+        f.close()
 
-       
+
             
 #the following functions is used in parallel to process the combination of the differnt product maps 
 def collectresults(task,proc):
@@ -453,8 +456,8 @@ def main():
         #running the "general" function
         general(pnt, dem,treesmap,buildmap,treesheigh,buildheigh, obsabselev)
         #perparing the container and limiting the number of CPU used
-        message = "Using the following number of CPU: %s"
-        gscript.message(message % str(nprocs))
+        #message = "Using the following number of CPU: %s"
+        #gscript.message(message % str(nprocs))
         #pool = multiprocessing.Pool( nprocs )
         #creating the pool ofr the parallel processes. initialization of the single processes is delayed by the lock 
         pool = multiprocessing.Pool( processes=nprocs , initializer=init, initargs=[multiprocessing.Lock()])
@@ -475,7 +478,7 @@ def main():
             #creating the "zeros" map to be used for the combination of the different teporary maps
             for i in range(len(chunks)):
                 #print("creating \"map zeros\" for the chunk "+str(i) + " of " + str(len(chunks)))
-                message = "Creating \"map zeros\" for the chunk %s  of %s"
+                message = "Creating \"maps zero\" for the chunk %s  of %s"
                 gscript.message(message % (str(i),str(len(chunks))))
                 #for storing maximum view angles
                 Module("r.mapcalc", expression="xxtemp_a_{p} = 0".format(p=str(i)), overwrite=True, quiet=True)
