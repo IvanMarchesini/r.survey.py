@@ -1,20 +1,8 @@
 # r.survey.py
-Given a set of survey locations of an observer walking in the fleld or flying over a given areas, r.survey calculates best solid angle, 3D distance and view angle for each pixel. It runs in GRASS GIS and exploits r.viewshed
-
-Currently tested under grass 7.8
 
 
 <html>
-<head>
-<title>r.survey.py - GRASS GIS manual</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="grassdocs.css" type="text/css">
-</head>
-<body bgcolor="white">
-<div id="container">
 
-<a href="index.html"><img src="grass_logo.png" alt="GRASS logo"></a>
-<hr class="header">
 
 <h2>NAME</h2>
 <em><b>r.survey.py</b></em>  - Returns maps of visibility indexes (3d distance, view angle and solid angle) from multiple survey points
@@ -170,11 +158,6 @@ r.survey25_parallel points=pt_map dem=dtm output=example maxdist=500 object_radi
 </pre></div>
 
 
-<h2><a name="see-also">SEE ALSO</a></h2>
-
-<em>
-<a href="r.viewshed.html">r.viewshed</a>
-</em>
 
 <h2><a name="authors">AUTHORS</a></h2>
 
@@ -183,26 +166,7 @@ Ivan Marchesini, CNR IRPI, via della Madonna Alta 126, I 06128 Perugia, Italy
 <br>
 Txomin Bornaetxea, University of the Basque Country UPV/EHU, barrio Sarriena s/n, 48940 Leioa, Spain
 
-<!--
-<p>
-<i>Last changed: $Date$</i>
---><h2>SOURCE CODE</h2>
-<p>Available at: <a href="https://github.com/IvanMarchesini/r.survey.py">r.survey.py</a> 
-</p>
-<hr class="header">
-<p>
-<a href="index.html">Main index</a> |
-<a href="raster.html">Raster index</a> |
-<a href="topics.html">Topics index</a> |
-<a href="keywords.html">Keywords index</a> |
-<a href="graphical_index.html">Graphical index</a> |
-<a href="full_index.html">Full index</a>
-</p>
-<p>
-&copy; 2003-2020
-<a href="http://grass.osgeo.org">GRASS Development Team</a>,
-GRASS GIS 7.8.4dev Reference Manual
-</p>
+
 
 </div>
 </body>
