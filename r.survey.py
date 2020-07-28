@@ -62,7 +62,7 @@
 #%option
 #% key: obs_heigh
 #% description: observer_elevation
-#% type: string
+#% type: double
 #% required: yes
 #% answer: 1.75
 #%end
@@ -95,14 +95,14 @@
 #% key: viewangle_threshold
 #% description: cut the output layers at a given threshold value (between 90 and 180 degrees)
 #% gisprompt: 90-180
-#% type: string
+#% type: double
 #% required: yes
 #%answer: 90.01
 #%end
 #%option
 #% key: object_radius
 #% description: radius of the surveyed object in unit of map (default is half the DEM resolution)
-#% type: string
+#% type: double
 #% required: no
 #%end
 #%option
