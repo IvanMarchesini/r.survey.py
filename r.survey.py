@@ -154,8 +154,8 @@ def cleanup():
     Module("g.remove", type='vector', pattern="zzpnt*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="xx*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")
-    #dem=dem
-    #dem=general.dem
+    #dem=main.dem
+    dem=general.orig_dem
     print("I'm before removing all")
     print("zz"+dem+"_modified")
     find_dem_modified = gscript.find_file("zz"+dem+"_modified", element = 'cell')
@@ -180,6 +180,7 @@ def cleanup():
     
 #starting function. needed for preparing the data
 def general(pnt, dem, treesmap, buildmap, treesheigh, buildheigh, obsabselev):
+    general.orig_dem=dem
     #raster points
     Module("v.to.rast", input=pnt, output="xxrastpnt", type="point", use="val", overwrite=True, quiet=True)
     #altering DEM in case there are buldings and trees map (to obtain a sort of DSM) and in case observer is not flying the dem is kept to the ground level at observer positions
