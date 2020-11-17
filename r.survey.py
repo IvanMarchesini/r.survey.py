@@ -155,6 +155,7 @@ def cleanup():
     Module("g.remove", type='raster', pattern="xx*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")
     dem=general.dem
+    print("I'm before removing all")
     find_dem_modified = gscript.find_file("zz"+dem+"_modified", element = 'cell')
     if find_dem_modified['name'] != "":
             Module("g.remove", type='raster', name="zz"+dem+"_modified", quiet=True, flags="f")
@@ -168,6 +169,7 @@ def cleanup():
     if find_buildmap['name'] != "":
             Module("g.remove", type='raster', name=main.buildmap, quiet=True, flags="f")
     #if there is a MASK remove it
+    print("I'm before removing r.mask")
     find_MASK = gscript.find_file("MASK", element = 'cell')
     print("I'm here")
     if find_MASK['name'] != "":
