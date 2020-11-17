@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:    r.survey
-# AUTHOR(S): Ivan Marchesini
+# AUTHOR(S): Ivan Marchesini and Txomin Bornaxea
 # PURPOSE:   Define solid angle, 3d distance and view angles area 
 # from multiple survey locations (points). Survey points can be at any elevation
 # above ground level. 3d points, representing drone/aerial positions, are allowed
@@ -169,6 +169,7 @@ def cleanup():
             Module("g.remove", type='raster', name=main.buildmap, quiet=True, flags="f")
     #if there is a MASK remove it
     find_MASK = gscript.find_file("MASK", element = 'cell')
+    print("I'm here")
     if find_MASK['name'] != "":
         Module("r.mask", flags="r")
     
