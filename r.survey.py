@@ -154,7 +154,8 @@ def cleanup():
     Module("g.remove", type='vector', pattern="zzpnt*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="xx*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")
-    dem=general.dem
+    #dem=dem
+    #dem=general.dem
     print("I'm before removing all")
     print("zz"+dem+"_modified")
     find_dem_modified = gscript.find_file("zz"+dem+"_modified", element = 'cell')
