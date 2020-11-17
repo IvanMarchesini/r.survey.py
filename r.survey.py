@@ -169,7 +169,7 @@ def cleanup():
             Module("g.remove", type='raster', name=main.buildmap, quiet=True, flags="f")
     #if there is a MASK remove it
     find_MASK = gscript.find_file("MASK", element = 'cell')
-    ##print("I'm here")
+    print("I'm here")
     if find_MASK['name'] != "":
         Module("r.mask", flags="r")
     
