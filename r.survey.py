@@ -154,26 +154,23 @@ def cleanup():
     Module("g.remove", type='vector', pattern="zzpnt*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="xx*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")
-    #dem=main.dem
     dem=general.orig_dem
-    print("I'm before removing all")
-    print("zz"+dem+"_modified")
     find_dem_modified = gscript.find_file("zz"+dem+"_modified", element = 'cell')
     if find_dem_modified['name'] != "":
-            Module("g.remove", type='raster', name="zz"+dem+"_modified", quiet=True, flags="f")
+        Module("g.remove", type='raster', name="zz"+dem+"_modified", quiet=True, flags="f")
     find_dem_modified = gscript.find_file("zz"+dem+"_modified_full", element = 'cell')
     if find_dem_modified['name'] != "":
-            Module("g.remove", type='raster', name="zz"+dem+"_modified_full", quiet=True, flags="f")
-    find_treesmap = gscript.find_file(main.treesmap, element = 'cell')
-    if find_treesmap['name'] != "":
+        Module("g.remove", type='raster', name="zz"+dem+"_modified_full", quiet=True, flags="f")
+    if main.treesmap:
+        find_treesmap = gscript.find_file(main.treesmap, element = 'cell')
+        if find_treesmap['name'] != "":
             Module("g.remove", type='raster', name=main.treesmap, quiet=True, flags="f")
-    find_buildmap = gscript.find_file(main.buildmap, element = 'cell')
-    if find_buildmap['name'] != "":
+    if main.buildmap:
+        find_buildmap = gscript.find_file(main.buildmap, element = 'cell')
+        if find_buildmap['name'] != "":
             Module("g.remove", type='raster', name=main.buildmap, quiet=True, flags="f")
     #if there is a MASK remove it
-    print("I'm before removing r.mask")
     find_MASK = gscript.find_file("MASK", element = 'cell')
-    print("I'm here")
     if find_MASK['name'] != "":
         Module("r.mask", flags="r")
     
@@ -453,7 +450,7 @@ def main():
     except:
         oradius=0
     #exporting some variables for other functions
-    main.treesmap=treesmap
+    main.treesmap=treesmap 
     main.buildmap=buildmap
     main.nprocs=nprocs        
     try:
