@@ -156,38 +156,32 @@ Parallel computation was implemented exploiting the Python Multiprocessing libra
 
 
 <h2>EXAMPLES</h2>
-The lacation used for the following examples can be downloaded from https://github.com/IvanMarchesini/r.survey.py under the name of R.SURVEY_LOCATION,
+The location used for the following examples can be downloaded from this folder. The name is R.SURVEY_Location
 <p>
-1) This example shows how to run r.survey calculating the solid angle for an object of radius equal to 20 m and using 4 parallel processes. 
+1) This example shows how to run r.survey calculating the solid angle for an object of radius equal to 20 m and using 4 parallel processes. The height of a tower is considered as well into the calculations. 
 
 <br>
 <div class="code"><pre>
-g.region raster=dtm 
-r.survey points=pt_map dem=dtm output=example maxdist=500 object_radius=20 nprocs=4
+g.region raster=Synthetic_valley 
+r.survey points=Two_viewpoints dem=Synthetic_valley output=example maxdist=3000 buildingsmap=Tower buildingsheigh=Altitude object_radius=20 nprocs=4
 </pre></div>
 <p>
-2) This second example shows how to run r.survey calculating the same layers as in example 1, but this time the outputs are filtered by a View Angle threshold of 100 degrees. 
+2) This second example shows how to run r.survey calculating the same layers as in example 1, but this time the outputs are filtered by a View Angle threshold of 100 degrees.
 
 <br>
 <div class="code"><pre>
-g.region raster=dtm 
-r.survey points=pt_map dem=dtm output=example2 maxdist=500 object_radius=20 nprocs=4 viewangle_threshold=100
+g.region raster=Synthetic_valley 
+r.survey points=Two_viewpoints dem=Synthetic_valley output=example2 maxdist=3000 buildingsmap=Tower buildingsheigh=Altitude object_radius=20 nprocs=4 viewangle_threshold=100
 </pre></div>
 <p>
-3) This example shows how to run r.survey in flight mode and with the downward view. The observation points correspond for the path of an UAV flying in a irregular height above the ground. A field with the points altitude information (above de sea level) is mandatory. 
+3) This example shows how to run r.survey in flight mode and with the downward view. The observation points correspond for the path of an UAV flying in a irregular height above the ground. A field with the points altitude information (above de sea level) is mandatory.
 
 <br>
 <div class="code"><pre>
-g.region raster=dtm 
-r.survey -d points=fly_pt_map dem=dtm output=example3 maxdist=1000 nprocs=4 obsabselev=Altitude
+g.region raster=Synthetic_valley 
+r.survey -d points=Flight_viewpoints dem=Synthetic_valley output=example3 maxdist=3000 nprocs=4 obsabselev=Elevation
 </pre></div>
 
-<h2><a name="authors">AUTHORS</a></h2>
-
-
-Ivan Marchesini, CNR IRPI, via della Madonna Alta 126, I 06128 Perugia, Italy 
-<br>
-Txomin Bornaetxea, University of the Basque Country UPV/EHU, barrio Sarriena s/n, 48940 Leioa, Spain
 
 
 
