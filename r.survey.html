@@ -18,7 +18,7 @@
 <h2>SYNOPSIS</h2>
 <div id="name"><b>r.survey.py</b><br></div>
 <b>r.survey.py --help</b><br>
-<div id="synopsis"><b>r.survey.py</b> [-<b>bcd</b>] <b>points</b>=<em>name</em> <b>dem</b>=<em>name</em> <b>output</b>=<em>name</em> <b>maxdist</b>=<em>float</em>  [<b>treesmap</b>=<em>name</em>]   [<b>buildingsmap</b>=<em>name</em>]  <b>obs_heigh</b>=<em>string</em>  [<b>treesheigh</b>=<em>string</em>]   [<b>buildingsheigh</b>=<em>string</em>]   [<b>obsabselev</b>=<em>string</em>]   [<b>layer</b>=<em>string</em>]  <b>viewangle_threshold</b>=<em>string</em>  [<b>object_radius</b>=<em>string</em>]   [<b>nprocs</b>=<em>integer</em>]   [<b>memory</b>=<em>integer</em>]   [--<b>overwrite</b>]  [--<b>help</b>]  [--<b>verbose</b>]  [--<b>quiet</b>]  [--<b>ui</b>] 
+<div id="synopsis"><b>r.survey.py</b> [-<b>bcd</b>] <b>points</b>=<em>name</em> <b>dem</b>=<em>name</em> <b>output</b>=<em>name</em> <b>maxdist</b>=<em>float</em>  [<b>treesmap</b>=<em>name</em>]   [<b>buildingsmap</b>=<em>name</em>]  <b>obs_heigh</b>=<em>string</em>  [<b>treesheigh</b>=<em>string</em>]  [<b>treesheighdeviation</b>=<em>string</em>]   [<b>buildingsheigh</b>=<em>string</em>]   [<b>obsabselev</b>=<em>string</em>]   [<b>layer</b>=<em>string</em>]  <b>viewangle_threshold</b>=<em>string</em>  [<b>object_radius</b>=<em>string</em>]   [<b>nprocs</b>=<em>integer</em>]   [<b>memory</b>=<em>integer</em>]   [--<b>overwrite</b>]  [--<b>help</b>]  [--<b>verbose</b>]  [--<b>quiet</b>]  [--<b>ui</b>] 
 </div>
 
 <div id="flags">
@@ -78,6 +78,9 @@
 <dt><b>treesheigh</b>=<em>string</em></dt>
 <dd>field of the attribute table containing information about threes heigh</dd>
 
+<dt><b>treesheighdeviation</b>=<em>string</em></dt>
+<dd>field of the attribute table containing information about standard deviation value relate to the heigh</dd>
+
 <dt><b>buildingsheigh</b>=<em>string</em></dt>
 <dd>field of the attribute table containing information about buildings heigh</dd>
 
@@ -128,7 +131,7 @@ Three principal outputs (visibility indexes) are given, based on trigonometric c
 This information concerns the three-dimensional distance, the relative orientation (View Angle) and the Solid Angle, of each target pixel with respect to the viewpoint.
 <p>
 A map containing a set of points (having different categories - cat values) describing the locations of the observer and a digital elevation model (DEM) are the mandatory inputs for r.survey. 
-In addition, maps of buildings and trees, portraying height information, can be used to alter the DEM.  
+In addition, maps of buildings and trees, portraying height information, can be used to alter the DEM. In the case of trees map, apart from the height value, a third column in the attribute table has to contain the standard deviation value related to the heigh. This is used to simulate the rougness of forested areas.  
 <p>
 Many other options can be set according to the aim of the analysis, such as: observer height respect to the ground or respect to an elevation datum (absolute elevation), maximum distance to perform the calculations, a view-angle threshold to exclude, a priori, cell oriented almost perpendicularly to the lines of sight, the average size of the observed object.
 The input points map must be provided to the tool as a vector layer. In case it represents the positions of a UAV, an helicopter or of a satellite, it must include an attribute field containing absolute elevation values with respect to a vertical datum (the same datum used by the input DEM). Observer height (respect to the ground, the default is 1.75 m) and maximum distance of observation (default is 1000 m)  are parameters needed by the r.viewshed module. The object radius is used to approximate, with an equivalent circle, the minimum size of an object centered in the cells center and oriented according to the slope and aspect of the cells. Since r.survey produces different types of outputs, a name to be used for the prefix of the output maps is requested.
@@ -142,7 +145,7 @@ The input points map must be provided to the tool as a vector layer. In case it 
 <img src="figures/fig_2.png" alt="e3Ddistance">
 
 <p>
-Given a viewpoint, r.survey calculate the unit vector describing direction and sense of the line of sight between that viewpoint and each visible pixel (see illustration bellow). We define View Angle as the angle between the line of sight unit vector and the versor normal to the terrain surface in each pixel. The maxViewAngle map shows the value of the maximum View Angle between each pixel and the viewpoints, in degrees. It is a measure of the most frontal view each single cell is visible from.  View angle output is always larger than 90° and smaller than 180°.
+Given a viewpoint, r.survey calculate the unit vector describing direction and sense of the line of sight between that viewpoint and each visible pixel (see illustration bellow). We define View Angle as the angle between the line of sight unit vector and the versor normal to the terrain surface in each pixel. The maxViewAngle map shows the value of the maximum View Angle between each pixel and the viewpoints, in degrees. It is a measure of the most frontal view each single cell is visible from.  View angle output is always larger than 90\B0 and smaller than 180\B0.
 <p>
 	
 <img src="figures/View_Angle.png" alt="view angle">
