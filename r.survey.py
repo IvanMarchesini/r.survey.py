@@ -68,10 +68,16 @@
 #%end
 #%option
 #% key: treesheigh
-#% description: field of the attribute table containing information about threes heigh
+#% description: field of the attribute table containing information about average threes heigh
 #% type: string
 #% required: no
 #%end
+#%option
+#% key: treesheighdeviation
+#% description: field of the attribute table containing information about standard deviation value relate to the heigh
+#% type: string
+#% required: no
+#%end                                                                                   
 #%option
 #% key: buildingsheigh
 #% description: field of the attribute table containing information about buildings heigh
@@ -153,7 +159,7 @@ def cleanup():
     Module("g.remove", type='vector', pattern="xxtemp*", quiet=True, flags="f")
     Module("g.remove", type='vector', pattern="zzpnt*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="xx*", quiet=True, flags="f")
-    Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")
+    Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")                               
     dem=general.dem
     find_dem_modified = gscript.find_file("zz"+dem+"_modified", element = 'cell')
     if find_dem_modified['name'] != "":
@@ -176,13 +182,17 @@ def cleanup():
     
     
 #starting function. needed for preparing the data
-def general(pnt, dem, treesmap, buildmap, treesheigh, buildheigh, obsabselev):
+def general(pnt, dem, treesmap, buildmap, treesheigh, treesheighdeviation, buildheigh, obsabselev):                                  
     #raster points
     Module("v.to.rast", input=pnt, output="xxrastpnt", type="point", use="val", overwrite=True, quiet=True)
     #altering DEM in case there are buldings and trees map (to obtain a sort of DSM) and in case observer is not flying the dem is kept to the ground level at observer positions
     if treesmap and buildmap:
+        Module("r.surf.gauss", output="xxgaussianmap", mean=0, sigma=1, overwrite=True, quiet=True)
         Module("v.to.rast", input=treesmap, output=treesmap, use="attr", attribute_column=treesheigh, overwrite=True, quiet=True)
+        Module("v.to.rast", input=treesmap, output="xxtreesdeviationmap", use="attr", attribute_column=treesheighdeviation, overwrite=True, quiet=True)
         Module("v.to.rast", input=buildmap, output=buildmap, use="attr", attribute_column=buildheigh, overwrite=True, quiet=True)
+        Module("r.mapcalc", expression="{B} =  {A}*{C}".format(A="xxgaussianmap", B="xxtruedeviation", C="xxtreesdeviationmap"), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="{B} =  {A}+{C}".format(A=treesmap, B=treesmap, C="xxtruedeviation"), overwrite=True, quiet=True) 
         Module("r.mapcalc", expression="{A} = if(isnull({B}),{C},{B})".format(A="zztreesbuildingmap",B=buildmap,C=treesmap), overwrite=True, quiet=True)
         Module("r.mapcalc", expression="{B} = if(isnull({A}),{C},{C}+{A})".format(A="zztreesbuildingmap", B="zz"+dem+"_modified_full", C=dem), overwrite=True, quiet=True)
         Module("r.mapcalc", expression="{B} = if(isnull({A}),{D},{C})".format(A="xxrastpnt", B="zz"+dem+"_modified",C=dem,D="zz"+dem+"_modified_full"), overwrite=True, quiet=True)
@@ -191,7 +201,11 @@ def general(pnt, dem, treesmap, buildmap, treesheigh, buildheigh, obsabselev):
         else:
             dem="zz"+dem+"_modified"
     elif treesmap and not buildmap: 
+        Module("r.surf.gauss", output="xxgaussianmap", mean=0, sigma=1, overwrite=True, quiet=True)
         Module("v.to.rast", input=treesmap, output=treesmap, use="attr", attribute_column=treesheigh, overwrite=True, quiet=True)
+        Module("v.to.rast", input=treesmap, output="xxtreesdeviationmap", use="attr", attribute_column=treesheighdeviation, overwrite=True, quiet=True)
+        Module("r.mapcalc", expression="{B} =  {A}*{C}".format(A="xxgaussianmap", B="xxtruedeviation", C="xxtreesdeviationmap"), overwrite=True, quiet=True) 
+        Module("r.mapcalc", expression="{B} =  {A}+{C}".format(A=treesmap, B=treesmap, C="xxtruedeviation"), overwrite=True, quiet=True) 
         Module("r.mapcalc", expression="{B} = if(isnull({A}),{C},{C}+{A})".format(A=treesmap, B="zz"+dem+"_modified_full", C=dem), overwrite=True, quiet=True)
         Module("r.mapcalc", expression="{B} = if(isnull({A}),{D},{C})".format(A="xxrastpnt", B="zz"+dem+"_modified",C=dem,D="zz"+dem+"_modified_full"), overwrite=True, quiet=True)
         if obsabselev:
@@ -420,6 +434,7 @@ def main():
     treesmap = options['treesmap']
     buildmap =  options['buildingsmap']
     treesheigh = options['treesheigh']
+    treesheighdeviation = options['treesheighdeviation']                           
     buildheigh = options['buildingsheigh']
     obsabselev = options['obsabselev']
     if options['object_radius']:
@@ -456,7 +471,7 @@ def main():
         #setting the starting region alignement to the grid of the DEM
         Module("g.region", align=dem)
         #running the "general" function
-        general(pnt, dem,treesmap,buildmap,treesheigh,buildheigh, obsabselev)
+        general(pnt, dem,treesmap,buildmap,treesheigh, treesheighdeviation, buildheigh, obsabselev)         
         #perparing the container and limiting the number of CPU used
         #message = "Using the following number of CPU: %s"
         #gscript.message(message % str(nprocs))
@@ -538,7 +553,7 @@ def main():
                 #updating the output layer of the category of the point who has the higher angle with the considered cell
                 Module("r.mapcalc", expression="{A} = if({I}==0 ||| isnull({I}),{A}, if({I}<{Z},{A},{C}))".format(A='xxtemp_c',C='xxtemp_c_'+str(i),I='xxmaxangle_'+str(i),Z='xxtemp_a'), overwrite=True,  quiet=True)
      	        #updating the output layer of the 3d distance
-                Module("r.mapcalc", expression="{A} = if({A} != 0 && {I} != 0,min({I},{A}), if({A} == 0 && {I} != 0,{I}, if({A} != 0 && {I} == 0,{A} )   )  )".format(A='xxtemp_e',I='xxtemp_e_'+str(i)),overwrite=True, quiet=True)                                  ### TXOMIN ###            
+                Module("r.mapcalc", expression="{A} = if({A} != 0 && {I} != 0,min({I},{A}), if({A} == 0 && {I} != 0,{I}, if({A} != 0 && {I} == 0,{A} )   )  )".format(A='xxtemp_e',I='xxtemp_e_'+str(i)),overwrite=True, quiet=True)                                          
                 #updating the map of the solid angles
                 Module("r.mapcalc", expression="{A} = if(isnull({I}) ||| {I}==0,{A},max({A},{I}))".format(A='xxtemp_f',I="xxtemp_f_"+str(i)), overwrite=True,  quiet=True)
                 #updating the output layer of the category of the point who has the higher solid angle with the considered cell
@@ -588,3 +603,4 @@ if __name__ == "__main__":
         options, flags = parser()
         atexit.register(cleanup)
         sys.exit(main())
+
