@@ -103,7 +103,7 @@
 #% gisprompt: 90-180
 #% type: double
 #% required: yes
-#%answer: 90.01
+#%answer: 90
 #%end
 #%option
 #% key: object_radius
@@ -159,7 +159,8 @@ def cleanup():
     Module("g.remove", type='vector', pattern="xxtemp*", quiet=True, flags="f")
     Module("g.remove", type='vector', pattern="zzpnt*", quiet=True, flags="f")
     Module("g.remove", type='raster', pattern="xx*", quiet=True, flags="f")
-    Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f")                               
+    Module("g.remove", type='raster', pattern="zz*", quiet=True, flags="f") 
+    Module("g.remove", type='raster', pattern="kk*", quiet=True, flags="f")                          
     dem=general.dem
     find_dem_modified = gscript.find_file("zz"+dem+"_modified", element = 'cell')
     if find_dem_modified['name'] != "":
@@ -349,14 +350,65 @@ def compute(pnt, dem, obs_heigh, maxdist, hcurv, downward, oradius, i, nprocs, o
         Module("r.mapcalc", expression="zza_view{I} = cos(zzview90_{I})*sin(zzview_angle{I})".format(I=i), overwrite=True, quiet=True)    
         #estimate the three-dimensional distance between the point and each visible cell
         if obsabselev:
-            Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2)+pow(abs({dtm}-{Z}),2),0.5)".format(D='zzdistance'+i, dtm=dem, Z=z, py=y, px=x), overwrite=True, quiet=True)
+            if hcurv:
+                j = gscript.read_command("g.proj", flags="j", quiet=True)
+                kvj = gscript.parse_key_val(j)
+                eradius = kvj['+a'] #This is the radius of the earth for the elipsoid in the current projection
+                Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2),0.5)".format(D='zzeuclidean'+i, py=y, px=x), overwrite=True, quiet=True) # Planar distance
+                Module("r.mapcalc", expression="{D} = pow({B},2)/(2*{C})".format(D='zzdtm_correction'+i, B='zzeuclidean'+i, C=eradius), overwrite=True, quiet=True) #Value to substract to the original dem 
+                Module("r.mapcalc", expression="{D} = {dtm}-{B}".format(D='zzdtm_correct'+i, dtm=dem, B='zzdtm_correction'+i), overwrite=True, quiet=True) # This line can be combined with the previous one
+                Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2)+pow(abs({dtm}-{Z}),2),0.5)".format(D='zzdistance'+i, dtm='zzdtm_correct'+i, Z=z, py=y, px=x), overwrite=True, quiet=True)
+            else:
+                Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2)+pow(abs({dtm}-{Z}),2),0.5)".format(D='zzdistance'+i, dtm=dem, Z=z, py=y, px=x), overwrite=True, quiet=True)
         else:
-            Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2)+pow(abs({dtm}-({obs}+{obs_h})),2),0.5)".format(D='zzdistance'+i, dtm=dem, obs=obselev, obs_h=obs_heigh, py=y, px=x), overwrite=True, quiet=True)
-        
+            if hcurv:
+                j = gscript.read_command("g.proj", flags="j", quiet=True)
+                kvj = gscript.parse_key_val(j)
+                eradius = kvj['+a'] #This is the radius of the earth for the elipsoid in the current projection
+                Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2),0.5)".format(D='zzeuclidean'+i, py=y, px=x), overwrite=True, quiet=True) # Planar distance
+                Module("r.mapcalc", expression="{D} = pow({B},2)/(2*{C})".format(D='zzdtm_correction'+i, B='zzeuclidean'+i, C=eradius), overwrite=True, quiet=True) #Value to substract to the original dem 
+                Module("r.mapcalc", expression="{D} = {dtm}-{B}".format(D='zzdtm_correct'+i, dtm=dem, B='zzdtm_correction'+i), overwrite=True, quiet=True) # This line can be combined with the previous one
+                Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2)+pow(abs({dtm}-({obs}+{obs_h})),2),0.5)".format(D='zzdistance'+i, dtm='zzdtm_correct'+i, obs=obselev, obs_h=obs_heigh, py=y, px=x), overwrite=True, quiet=True)
+            else:
+                Module("r.mapcalc", expression="{D} = pow(pow(abs(y()-{py}),2)+pow(abs(x()-{px}),2)+pow(abs({dtm}-({obs}+{obs_h})),2),0.5)".format(D='zzdistance'+i, dtm=dem, obs=obselev, obs_h=obs_heigh, py=y, px=x), overwrite=True, quiet=True)
+                
         #estimating the layer of the angle between the versor of the terrain and the line of sight
-        Module("r.mapcalc", expression="zzangle{I} = acos((zza_view{I}*zza_dem+zzb_view{I}*zzb_dem+zzc_view{I}*zzc_dem)/(sqrt(zza_view{I}*zza_view{I}+zzb_view{I}*zzb_view{I}+zzc_view{I}*zzc_view{I})*sqrt(zza_dem*zza_dem+zzb_dem*zzb_dem+zzc_dem*zzc_dem)))".format(I=i), overwrite=True, quiet=True)
+        if hcurv:
+            # Calculating the theta angle of the arc of the surface in degrees
+            Module("r.mapcalc", expression="{D} = ({B}/{C})*(180/{pi})".format(D='zzarc'+i, B='zzeuclidean'+i, C=eradius, pi=pi), overwrite=True, quiet=True)
+            # Calculating the horizontal orientation of the K versor, which is perpendicular to the angle of the horizontal line of sight (zzview_angle) 
+            Module("r.mapcalc", expression="kkview_angle{I} = if(y()>{py} && x()>={px}, zzview_angle{I}+270, zzview_angle{I}-90)".format(I=i, py=y, px=x), overwrite=True, quiet=True)
+            # Calculating the 3 components of the K versor
+            Module("r.mapcalc", expression="kkc_view{I} = 0".format(I=i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="kkb_view{I} = cos(kkview_angle{I})".format(I=i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="kka_view{I} = sin(kkview_angle{I})".format(I=i), overwrite=True, quiet=True)           
+            ## Starting the calculations for the application of the RODRIGUES' ROTATION FORMULA
+            #Calculating the dot product between K and zzdem versors
+            Module("r.mapcalc", expression="zz_dotproduct{I} = kka_view{I}*zza_dem + kkb_view{I}*zzb_dem + kkc_view{I}*zzc_dem".format(I=i), overwrite=True, quiet=True)
+            # Calculating a, b and c components for the first part of the equation (K(K · V)/(1-cos(theta)))
+            Module("r.mapcalc", expression="zzc_equation_first{I} = kkc_view{I}*zz_dotproduct{I}*(1-cos({B}))".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)           
+            Module("r.mapcalc", expression="zzb_equation_first{I} = kkb_view{I}*zz_dotproduct{I}*(1-cos({B}))".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="zza_equation_first{I} = kka_view{I}*zz_dotproduct{I}*(1-cos({B}))".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+            # Calculating a, b and c components for the second part of the equation (V * cos(theta))
+            Module("r.mapcalc", expression="zzc_equation_second{I} = zzc_dem*cos({B})".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)           
+            Module("r.mapcalc", expression="zzb_equation_second{I} = zzb_dem*cos({B})".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="zza_equation_second{I} = zza_dem*cos({B})".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+            # Calculating a, b and c components for the sthird part of the equation (sin(theta)(K x V))
+            Module("r.mapcalc", expression="zzc_equation_third{I} = sin({B})*(kka_view{I}*zzb_dem - kkb_view{I}*zza_dem)".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="zzb_equation_third{I} = sin({B})*(kkc_view{I}*zza_dem - kka_view{I}*zzc_dem)".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="zza_equation_third{I} = sin({B})*(kkb_view{I}*zzc_dem - kkc_view{I}*zzb_dem)".format(I=i, B='zzarc'+i), overwrite=True, quiet=True)
+    
+            # Calculating the vertical, north and east components of the rotated versor of the terrain 
+            Module("r.mapcalc", expression="zzc_dem_curv{I} = zzc_equation_first{I} + zzc_equation_second{I} + zzc_equation_third{I}".format(I=i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="zzb_dem_curv{I} = zzb_equation_first{I} + zzb_equation_second{I} + zzb_equation_third{I}".format(I=i), overwrite=True, quiet=True)
+            Module("r.mapcalc", expression="zza_dem_curv{I} = zza_equation_first{I} + zza_equation_second{I} + zza_equation_third{I}".format(I=i), overwrite=True, quiet=True)
+        
+            #calculating the view angle corrected according to the earth curvature distortion.     
+            Module("r.mapcalc", expression="zzangle{I} = acos((zza_view{I}*zza_dem_curv{I}+zzb_view{I}*zzb_dem_curv{I}+zzc_view{I}*zzc_dem_curv{I})/(sqrt(zza_view{I}*zza_view{I}+zzb_view{I}*zzb_view{I}+zzc_view{I}*zzc_view{I})*sqrt(zza_dem_curv{I}*zza_dem_curv{I}+zzb_dem_curv{I}*zzb_dem_curv{I}+zzc_dem_curv{I}*zzc_dem_curv{I})))".format(I=i), overwrite=True, quiet=True)
+        else:
+            Module("r.mapcalc", expression="zzangle{I} = acos((zza_view{I}*zza_dem+zzb_view{I}*zzb_dem+zzc_view{I}*zzc_dem)/(sqrt(zza_view{I}*zza_view{I}+zzb_view{I}*zzb_view{I}+zzc_view{I}*zzc_view{I})*sqrt(zza_dem*zza_dem+zzb_dem*zzb_dem+zzc_dem*zzc_dem)))".format(I=i), overwrite=True, quiet=True)
         #in rare cases the angles may results, erroneusly, less than 90. Setting them to 90
-        Module("r.mapcalc", expression="zzangle{I} = if(zzangle{I} > 90, zzangle{I}, 90)".format(I=i), overwrite=True, quiet=True) 
+        #Module("r.mapcalc", expression="zzangle{I} = if(zzangle{I} > 90, zzangle{I}, 90)".format(I=i), overwrite=True, quiet=True) 
         #filtering 3d distance based on angle{I} map
         Module("r.mapcalc", expression="{D} = if(isnull(zzangle{I}),null(),{D})".format(D="zzdistance"+str(i),I=i), overwrite=True, quiet=True)
         #calculating H1 and H2 that are the distances from the observer to the more distant and less distant points of the inclinded circle representing the pixel
@@ -570,11 +622,11 @@ def main():
             Module("r.null", map='xxtemp_h', setnull=0, quiet=True)    
         #creating the output layer 
         #if there is a threshold for the viewangles, set a MASK
-        try:
-            viewangle_threshold
-            Module("r.mapcalc", expression="MASK=if({A}>{B},1,null())".format(A='xxtemp_a', B=viewangle_threshold), quiet=True, overwrite=True)
-        except:
-            pass
+        #try:
+            #viewangle_threshold
+            #Module("r.mapcalc", expression="MASK=if({A}>{B},1,null())".format(A='xxtemp_a', B=viewangle_threshold), quiet=True, overwrite=True)
+        #except:
+            #pass
         #print("Creating final maps")
         message = "Creating final maps"
         gscript.message(message)
