@@ -186,6 +186,17 @@ r.survey -d points=Flight_viewpoints dem=Synthetic_valley output=example3 maxdis
 </pre></div>
 
 
+<h2><a name="references">REFERENCES</a></h2>
+<ul>
+<li>Bornaetxea, T., Marchesini, I. <i>r.survey: a tool for calculating visibility of variable-size objects based on orientation</i>,<b>International Journal of Geographical Information Science</b>, Accepted for publication
+</ul>
+
+<h2><a name="authors">AUTHORS</a></h2>
+
+Ivan Marchesini - Research Institute for Geo-Hydrological Protection (IRPI) - Italian National Research Council (CNR), Perugia, Italy. E-mail: ivan.marchesini@irpi.cnr.it. ORCiD: 0000-0002-8342-3134
+<br>
+Txomin Bornaetxea - Department of Geology, University of the Basque Country (UPV/EHU), Leioa, Spain. E-mail: txomin.bornaetxea@ehu.eus. ORCiD: 0000-0002-1540-3991
+
 
 
 </div>

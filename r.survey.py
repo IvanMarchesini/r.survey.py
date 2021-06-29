@@ -254,8 +254,8 @@ def iterate(pnt, dem, obs_heigh, maxdist, hcurv, downward, oradius, ctg, nprocs,
         #i=2
         k=k+1
         #writing a message on the screen describing which point location is being put in the task list
-        message = "Preparing the task for the point %s (cat = %s) of %s points"
-        gscript.message(message % (k,i,general.npnt))
+        #message = "Preparing the task for the point %s (cat = %s) of %s points"
+        #gscript.message(message % (k,i,general.npnt))
         #appending the parameters needed for running the code in parallel to the task list
         tasks.append( (pnt, dem, obs_heigh, maxdist, hcurv, downward, oradius, i, nprocs, obsabselev, memory) )
         #exporting variables needed by other functions
@@ -442,8 +442,8 @@ def collectresults(task,proc):
         #print(i)
         #print(proc)
         #print("combining outputs for point " + str(i) + " and for cpu " + str(proc))
-        message = "Combining outputs for point %s and for cpu %s "
-        gscript.message(message % (str(i),str(proc)))
+        #message = "Combining outputs for point %s and for cpu %s "
+        #gscript.message(message % (str(i),str(proc)))
         #updating the output layer of the angle
         #updating the output layer of the best angle of view among all the points in the path 
         Module("r.mapcalc", expression="{A} = if(isnull({I}) ||| {I}==0,{A},max({A},{I}))".format(A='xxtemp_a_'+str(proc),I='zzangle'+i), overwrite=True, quiet=True)
