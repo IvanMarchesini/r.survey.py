@@ -135,13 +135,13 @@ The input points map must be provided to the tool as a vector layer. In case it 
 3D Distance is the three dimensional linear distance between a viewpoint and a target pixel (see the illutratio bellow). The min3dDistance map portrays  the value of the minimum three-dimensional distance between each pixel and the closest viewpoint, in meters. 
 <p>
 	
-<img src="r.survey_r_survey_fig_2.png" alt="e3Ddistance">
+<img src="figures/fig_2.png" alt="e3Ddistance">
 
 <p>
 Given a viewpoint, r.survey calculate the unit vector describing direction and sense of the line of sight between that viewpoint and each visible pixel (see illustration bellow). We define View Angle as the angle between the line of sight unit vector and the versor normal to the terrain surface in each pixel. The maxViewAngle map shows the value of the maximum View Angle between each pixel and the viewpoints, in degrees. It is a measure of the most frontal view each single cell is visible from.  View angle output is always larger than 90\B0 and smaller than 180\B0.
 <p>
 	
-<img src="r.survey_r_survey__view_angle.png" alt="view angle">
+<img src="figures/View_Angle.png" alt="view angle">
 
 
 <p>
